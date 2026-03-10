@@ -1,0 +1,29 @@
+{
+  "name": "demoshop-qa-automation",
+  "version": "1.0.0",
+  "description": "Mobile QA automation framework for DemoShop e-commerce application using Playwright",
+  "author": "Max",
+  "license": "MIT",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:smoke": "npx playwright test --grep @smoke",
+    "test:regression": "npx playwright test --grep @regression",
+    "test:cart": "npx playwright test tests/cart.spec.ts",
+    "test:auth": "npx playwright test tests/auth.spec.ts",
+    "test:catalog": "npx playwright test tests/catalog.spec.ts",
+    "test:search": "npx playwright test tests/search.spec.ts",
+    "test:mobile": "npx playwright test --project='Mobile Chrome'",
+    "test:desktop": "npx playwright test --project='Desktop Chrome'",
+    "test:all-devices": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:ui": "npx playwright test --ui",
+    "report": "npx playwright show-report",
+    "lint": "npx eslint tests/ pages/ utils/"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
