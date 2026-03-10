@@ -7,14 +7,14 @@ exploratory testing session against `https://qa-mobile-automation.vercel.app/`.
 |---|---|---|---|---|
 | BG-001 | Cart total string concatenation at 3+ items | Critical | Open | CT-012, CT-013 |
 | BG-002 | Favorites toast shows off-by-one count | High | Open | PL-017 |
-| BG-003 | Checkout button does not clear cart or close panel | High | Open | CT-017, CT-018 |
+| BG-003 | Checkout button does not clear cart or close panel | High | Documented | CT-017, CT-018 |
 | BG-004 | Multi-space search input not trimmed | Medium | Open | SR-013 |
-| BG-005 | iPad (768px) viewport shows 3–4s loading delay | Medium | Open | — |
-| BG-006 | Multiple interactive buttons have no accessible names | Medium | Open | — |
-| BG-007 | Tab order illogical; phantom zoom controls always in tab sequence | Medium | Open | — |
-| BG-008 | Keyboard +/− keys do not control zoom level | Low | Open | — |
-| BG-009 | Zoom modal shows no visual feedback at max/min zoom levels | Low | Open | PL-015, PL-016 |
-| BG-010 | Login page tab order starts at password field, not email | Low | Open | — |
+| BG-005 | iPad (768px) viewport shows 3–4s loading delay | Medium | Timing issue | PF-007 |
+| BG-006 | Multiple interactive buttons have no accessible names | Medium | WCAG 4.1.2 violation | AC-009 |
+| BG-007 | Tab order illogical; phantom zoom controls always in tab sequence | Medium | Documented | AC-010 |
+| BG-008 | Keyboard +/− keys do not control zoom level | Low | Documented | AC-011 |
+| BG-009 | Zoom modal shows no visual feedback at max/min zoom levels | Low | Documented | PL-015, PL-016 |
+| BG-010 | Login page tab order starts at password field, not email | Low | Documented | AC-012 |
 | BG-011 | Remember Me uses sessionStorage instead of localStorage | Medium | Open | AU-016, AU-017 |
 | BG-012 | Escape key does not close the image zoom modal | Low | Open | PL-013 |
 | BG-013 | Page title is "React App" (default CRA), not branded | Low | Open | PL-018 |
@@ -130,7 +130,7 @@ showToast(`Added to favorites (${newFavorites.length} total)`);
 ## BG-003: Checkout Button Does Not Clear Cart or Close Panel (High)
 
 **Severity:** High
-**Status:** Open
+**Status:** Documented
 **Reproducibility:** 100%
 
 ### Description
@@ -211,7 +211,7 @@ products.filter(p => p.name.toLowerCase().includes(searchTerm.trim().toLowerCase
 ## BG-005: iPad (768px) Viewport Shows 3–4 Second Loading Delay (Medium)
 
 **Severity:** Medium
-**Status:** Open
+**Status:** Timing issue
 **Reproducibility:** Consistent on 768px-wide viewports
 
 ### Description
@@ -241,14 +241,14 @@ The 768px breakpoint triggers a layout change (Tailwind's `md:` prefix switching
 
 ### Test References
 
-- No dedicated test — currently a known flakiness risk for the Tablet project configuration
+- `PF-007` — documents the loading delay and timing threshold on the 768px viewport
 
 ---
 
 ## BG-006: Multiple Interactive Buttons Have No Accessible Names (Medium)
 
 **Severity:** Medium (Accessibility — WCAG 2.1 Level A violation)
-**Status:** Open
+**Status:** WCAG 4.1.2 violation
 **Reproducibility:** 100% — structural issue, not intermittent
 
 ### Description
@@ -283,12 +283,16 @@ Seven or more interactive buttons in the app have no accessible name — no `ari
 - Screen reader users cannot identify or activate these buttons
 - Fails WCAG 2.1 Success Criterion 4.1.2 (Name, Role, Value)
 
+### Test References
+
+- `AC-009` — verifies all interactive buttons have an accessible name
+
 ---
 
 ## BG-007: Illogical Tab Order and Phantom Zoom Controls in Tab Sequence (Medium)
 
 **Severity:** Medium (Accessibility / UX)
-**Status:** Open
+**Status:** Documented
 **Reproducibility:** 100%
 
 ### Description
@@ -316,12 +320,16 @@ Cart icon → Search input → Category dropdown → Refresh button → Product 
 - Keyboard-only users cannot navigate the page logically
 - Screen reader users will encounter zoom modal controls in an unexpected context
 
+### Test References
+
+- `AC-010` — verifies logical tab order and absence of phantom focusable elements
+
 ---
 
 ## BG-008: Keyboard +/− Keys Do Not Control Zoom Level (Low)
 
 **Severity:** Low
-**Status:** Open
+**Status:** Documented
 **Reproducibility:** 100%
 
 ### Description
@@ -341,12 +349,16 @@ Zoom level unchanged (`Zoom: 1.0x`)
 
 `+` increases zoom level; `−` decreases zoom level
 
+### Test References
+
+- `AC-011` — verifies keyboard zoom controls are functional in the modal
+
 ---
 
 ## BG-009: Zoom Modal Provides No Visual Feedback at Max/Min Zoom Limits (Low)
 
 **Severity:** Low
-**Status:** Open
+**Status:** Documented
 **Reproducibility:** 100%
 
 ### Description
@@ -372,7 +384,7 @@ Zoom In button should be visually disabled (greyed out, `disabled` attribute, or
 ## BG-010: Login Page Tab Order Starts at Password Field, Not Email (Low)
 
 **Severity:** Low (Accessibility / UX)
-**Status:** Open
+**Status:** Documented
 **Reproducibility:** 100%
 
 ### Description
@@ -394,6 +406,10 @@ Email → Password → Remember Me checkbox → Login button
 ### Additional Finding
 
 Pressing Enter while focus is in the **email field** does nothing — it neither submits the form nor moves focus to the password field. Only Enter from the password field submits the form.
+
+### Test References
+
+- `AC-012` — verifies correct tab order on the login page
 
 ---
 
