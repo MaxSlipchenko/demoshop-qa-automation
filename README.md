@@ -194,12 +194,12 @@ Manual trigger:
 | BG-002 | Favorites toast off-by-one count | High | PL-017 |
 | BG-003 | Checkout button doesn't clear cart or close panel | High | CT-017, CT-018 |
 | BG-004 | Multi-space search input not trimmed (returns 0 results) | Medium | SR-013 |
-| BG-005 | iPad 768px viewport: 3–4s loading delay showing "0 products" | Medium | — |
-| BG-006 | 7+ interactive buttons have no accessible names (WCAG 4.1.2) | Medium | — |
-| BG-007 | Tab order illogical; phantom zoom controls in tab sequence | Medium | — |
-| BG-008 | Keyboard +/− doesn't control zoom level | Low | — |
+| BG-005 | iPad 768px viewport: 3–4s loading delay showing "0 products" | Medium | PF-007 |
+| BG-006 | 7+ interactive buttons have no accessible names (WCAG 4.1.2) | Medium | AC-009 |
+| BG-007 | Tab order illogical; phantom zoom controls in tab sequence | Medium | AC-010 |
+| BG-008 | Keyboard +/− doesn't control zoom level | Low | AC-011 |
 | BG-009 | No visual feedback at max (3.0x) / min (0.5x) zoom limits | Low | PL-015, PL-016 |
-| BG-010 | Login tab order starts at password field, not email | Low | — |
+| BG-010 | Login tab order starts at password field, not email | Low | AC-012 |
 | BG-011 | Remember Me uses sessionStorage, not localStorage | Medium | AU-016, AU-017 |
 | BG-012 | Escape key does not close the image zoom modal | Low | PL-013 |
 | BG-013 | Page title is "React App" (Create React App default) | Low | PL-018 |
