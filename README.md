@@ -145,7 +145,7 @@ All product data, credentials, and test constants are centralized in `utils/test
 - Type-safe with TypeScript interfaces
 
 ### 3. Bug Documentation in Tests
-Known bugs (BG-001: cart total string concatenation, BG-002: favorites count mismatch) are documented **inside the test code** with clear comments explaining actual vs expected behavior and root cause analysis. These tests are tagged `@known-bug` and will fail until bugs are fixed — which is the correct behavior.
+Known bugs are documented **inside the test code** with clear comments explaining actual vs expected behavior and root cause analysis. These tests are tagged `@known-bug` and use Playwright's `test.fail()` — they are counted as expected failures and will flag automatically when bugs are fixed. See [`docs/known-bugs.md`](docs/known-bugs.md) for full details on all 13 bugs.
 
 ### 4. CI/CD Strategy
 ```
@@ -163,17 +163,78 @@ Manual trigger:
 
 ---
 
+## Test Coverage
+
+**176 total regression tests** across Mobile Chrome (Pixel 7) and Desktop Chrome, organized across 7 spec files.
+
+| Suite | Tests | Notes |
+|---|---|---|
+| `auth.spec.ts` | 17 | Login flows, validation, security, keyboard behavior, session persistence |
+| `cart.spec.ts` | 20 | Add/remove, totals, checkout, refresh, persistence, known bugs |
+| `catalog.spec.ts` | 18 | Product data, favorites, image zoom (open/close/zoom levels), document metadata |
+| `category.spec.ts` | 8 | Filter by category, switching, combined with search |
+| `search.spec.ts` | 15 | Exact/partial/case-insensitive search, edge cases, XSS, whitespace bug |
+| `mobile.spec.ts` | 10 | Touch targets, viewport, scroll, orientation, accessibility |
+| `e2e-smoke.spec.ts` | 2 | Full critical user journey end-to-end |
+
+**Tag breakdown:**
+- `@smoke` — 24 tests covering the critical path (~1 min)
+- `@regression` — 176 tests covering full functionality (~4 min on 2 projects)
+- `@known-bug` — 6 tests documenting confirmed defects (use `test.fail()` — counted as expected failures)
+
+---
+
 ## Known Bugs Found
 
-### BG-001: Cart Total String Concatenation (Critical)
-**$99.99 + $29.99 + $39.99 → displays "$99.9929.9989.99" instead of "$169.97"**
+**13 bugs** identified across automated regression testing and a dedicated exploratory testing session. All bugs are fully documented in [`docs/known-bugs.md`](docs/known-bugs.md) with reproduction steps, root cause analysis, and suggested fixes.
 
-Prices are concatenated as strings instead of summed numerically. The `+` operator is applied to string values, resulting in concatenation. See `docs/known-bugs.md` for full analysis and suggested fix.
+| ID | Title | Severity | Test(s) |
+|---|---|---|---|
+| BG-001 | Cart total string concatenation at 3+ items | Critical | CT-012, CT-013 |
+| BG-002 | Favorites toast off-by-one count | High | PL-017 |
+| BG-003 | Checkout button doesn't clear cart or close panel | High | CT-017, CT-018 |
+| BG-004 | Multi-space search input not trimmed (returns 0 results) | Medium | SR-013 |
+| BG-005 | iPad 768px viewport: 3–4s loading delay showing "0 products" | Medium | — |
+| BG-006 | 7+ interactive buttons have no accessible names (WCAG 4.1.2) | Medium | — |
+| BG-007 | Tab order illogical; phantom zoom controls in tab sequence | Medium | — |
+| BG-008 | Keyboard +/− doesn't control zoom level | Low | — |
+| BG-009 | No visual feedback at max (3.0x) / min (0.5x) zoom limits | Low | PL-015, PL-016 |
+| BG-010 | Login tab order starts at password field, not email | Low | — |
+| BG-011 | Remember Me uses sessionStorage, not localStorage | Medium | AU-016, AU-017 |
+| BG-012 | Escape key does not close the image zoom modal | Low | PL-013 |
+| BG-013 | Page title is "React App" (Create React App default) | Low | PL-018 |
 
-### BG-002: Favorites Count Toast Mismatch (High)
-Toast shows "Added to favorites (0 total)" while header correctly shows count of 1. The toast reads stale state before the React update completes.
+---
 
-See [`docs/known-bugs.md`](docs/known-bugs.md) for detailed reproduction steps, root cause analysis, and suggested fixes.
+## Exploratory Testing
+
+A dedicated exploratory testing session was run after the initial regression suite, systematically testing every feature with edge cases, keyboard interactions, network inspection, and accessibility checks. This resulted in:
+
+- **13 bugs identified** (see full table above)
+- **17 new test cases added** across 4 spec files
+- **4 confirmed app improvements** discovered (checkout behavior, Remember Me scoping, zoom modal close mechanisms, product image zoom limits)
+
+### New Tests from Exploratory Session
+
+| Test ID | Description | File |
+|---|---|---|
+| AU-014 | Enter key in password field submits login | auth.spec.ts |
+| AU-015 | Enter key in email field is silently ignored [BUG] | auth.spec.ts |
+| AU-016 | Remember Me session persists across same-tab reload | auth.spec.ts |
+| AU-017 | Without Remember Me, reload returns to login | auth.spec.ts |
+| CT-017 | Checkout button shows "not implemented" toast | cart.spec.ts |
+| CT-018 | Cart panel stays open and items unchanged after checkout | cart.spec.ts |
+| CT-019 | Refresh button preserves cart contents | cart.spec.ts |
+| CT-020 | Same product added twice creates two separate cart entries | cart.spec.ts |
+| PL-013 | Escape key does not close zoom modal [BUG] | catalog.spec.ts |
+| PL-014 | Zoom modal closes by clicking dark backdrop | catalog.spec.ts |
+| PL-015 | Zoom level caps at 3.0x maximum | catalog.spec.ts |
+| PL-016 | Zoom level floors at 0.5x minimum | catalog.spec.ts |
+| PL-017 | Favorites toast shows off-by-one count [BUG] | catalog.spec.ts |
+| PL-018 | Page title is "React App" not branded [BUG] | catalog.spec.ts |
+| SR-013 | Multi-space search returns 0 products instead of all [BUG] | search.spec.ts |
+| SR-014 | Zero-result search shows "No products found" in grid | search.spec.ts |
+| SR-015 | Search preserves category filter context | search.spec.ts |
 
 ---
 
