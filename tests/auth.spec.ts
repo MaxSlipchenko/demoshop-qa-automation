@@ -189,4 +189,69 @@ test.describe('Authentication & Login', () => {
       expect(emailBox.height).toBeGreaterThanOrEqual(30); // Reasonable min height
     }
   });
+
+  // ═══════════════════════════════════════
+  // KEYBOARD & SESSION BEHAVIOR
+  // ═══════════════════════════════════════
+
+  test('AU-014: Enter key in password field submits login @regression', async ({
+    loginPage,
+    catalogPage,
+  }) => {
+    await loginPage.emailInput.fill(TEST_CREDENTIALS.valid.email);
+    await loginPage.passwordInput.fill(TEST_CREDENTIALS.valid.password);
+    await loginPage.passwordInput.press('Enter');
+
+    // Should navigate to catalog
+    await catalogPage.waitForProductsLoaded();
+    await catalogPage.assertProductCount(6);
+  });
+
+  test('AU-015: [BUG] Enter key in email field does not submit form @regression', async ({
+    loginPage,
+  }) => {
+    // Exploratory finding: pressing Enter from the email field is silently ignored
+    // (does not submit the form and does not move focus to the password field)
+    await loginPage.emailInput.fill(TEST_CREDENTIALS.valid.email);
+    await loginPage.emailInput.press('Enter');
+
+    // Should remain on login page
+    await expect(loginPage.loginButton).toBeVisible();
+  });
+
+  test('AU-016: Remember Me keeps session after page reload (sessionStorage) @regression', async ({
+    loginPage,
+    catalogPage,
+    page,
+  }) => {
+    // Login with Remember Me checked
+    await loginPage.emailInput.fill(TEST_CREDENTIALS.valid.email);
+    await loginPage.passwordInput.fill(TEST_CREDENTIALS.valid.password);
+    await loginPage.rememberMeCheckbox.check();
+    await loginPage.loginButton.click();
+    await catalogPage.waitForProductsLoaded();
+
+    // Reload the page — session stored in sessionStorage persists within the same tab
+    await page.reload();
+
+    await catalogPage.waitForProductsLoaded();
+    await catalogPage.assertProductCount(6);
+  });
+
+  test('AU-017: Without Remember Me, reload returns to login page @regression', async ({
+    loginPage,
+    catalogPage,
+    page,
+  }) => {
+    // Login WITHOUT Remember Me
+    await loginPage.login(TEST_CREDENTIALS.valid.email, TEST_CREDENTIALS.valid.password);
+    await catalogPage.waitForProductsLoaded();
+
+    // Reload — session should not persist (no sessionStorage entry)
+    await page.reload();
+    await page.waitForTimeout(1000);
+
+    // Should be back at the login page
+    await expect(loginPage.loginButton).toBeVisible();
+  });
 });

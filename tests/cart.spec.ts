@@ -361,4 +361,86 @@ test.describe('Shopping Cart', () => {
     // Badge should reflect 2 additions (either quantity or 2 entries)
     await header.assertBadgeCount(2);
   });
+
+  // ═══════════════════════════════════════
+  // CHECKOUT
+  // ═══════════════════════════════════════
+
+  test('CT-017: Checkout button shows "not implemented" toast @regression', async ({
+    catalogPage,
+    header,
+    page,
+  }) => {
+    await catalogPage.addToCart('Wireless Headphones');
+    await page.waitForTimeout(500);
+    await header.openCart();
+    await page.waitForTimeout(500);
+
+    await page.locator('[data-testid="checkout-button"]').click();
+
+    await expect(
+      page.locator('[data-testid="toast-notification"]')
+    ).toContainText(/checkout not implemented/i, { timeout: 3_000 });
+  });
+
+  test('CT-018: Cart panel stays open and items unchanged after checkout click @regression', async ({
+    catalogPage,
+    header,
+    page,
+  }) => {
+    await catalogPage.addToCart('Wireless Headphones');
+    await page.waitForTimeout(500);
+    await header.openCart();
+    await page.waitForTimeout(500);
+
+    await page.locator('[data-testid="checkout-button"]').click();
+    await page.waitForTimeout(500);
+
+    // Cart panel should still be open with item still present
+    await expect(page.getByText('Shopping Cart')).toBeVisible();
+    await expect(page.getByText('Wireless Headphones').last()).toBeVisible();
+    await header.assertBadgeCount(1);
+  });
+
+  // ═══════════════════════════════════════
+  // CART + REFRESH
+  // ═══════════════════════════════════════
+
+  test('CT-019: Refresh button preserves cart contents and badge count @regression', async ({
+    catalogPage,
+    header,
+    page,
+  }) => {
+    await catalogPage.addToCart('Wireless Headphones');
+    await page.waitForTimeout(500);
+    await header.assertBadgeCount(1);
+
+    // Click the Refresh button
+    await catalogPage.refreshButton.click();
+    await catalogPage.waitForProductsLoaded();
+
+    // Cart badge and total should be unchanged
+    await header.assertBadgeCount(1);
+    await expect(page.locator('[data-testid="cart-total"]')).toContainText('$99.99');
+  });
+
+  test('CT-020: Same product added twice creates two separate cart entries @regression', async ({
+    catalogPage,
+    header,
+    page,
+  }) => {
+    await catalogPage.addToCart('Yoga Mat');
+    await page.waitForTimeout(500);
+    await catalogPage.addToCart('Yoga Mat');
+    await page.waitForTimeout(500);
+
+    await header.openCart();
+    await page.waitForTimeout(500);
+
+    // Both entries should be visible as separate line items
+    const yogaMatEntries = await page.locator('[data-testid^="cart-item"]')
+      .filter({ has: page.getByText('Yoga Mat') })
+      .count();
+    expect(yogaMatEntries).toBe(2);
+  });
 });

@@ -178,4 +178,44 @@ test.describe('Search Functionality', () => {
     // Search + render should complete within 2 seconds (generous for slow CI)
     expect(elapsed).toBeLessThan(2000);
   });
+
+  // ═══════════════════════════════════════
+  // EDGE CASES — FROM EXPLORATORY TESTING
+  // ═══════════════════════════════════════
+
+  test('SR-013: [BUG-004] Multi-space search returns 0 products instead of all @regression @known-bug', async ({
+    catalogPage,
+  }) => {
+    test.fail(true, 'Known bug BUG-004: multi-space input is not trimmed before matching, returns 0 products. Single space works fine but 3+ spaces do not.');
+
+    // Three spaces should be treated as empty (trimmed), showing all products
+    await catalogPage.search('   ');
+    await catalogPage.assertProductCount(6);
+  });
+
+  test('SR-014: Zero-result search shows "No products found" text in grid area @regression', async ({
+    catalogPage,
+    page,
+  }) => {
+    await catalogPage.search('zzznomatch');
+    await catalogPage.assertProductCount(0);
+
+    // The grid area should show an explicit empty-state message
+    await expect(page.getByText(/no products found/i).first()).toBeVisible();
+  });
+
+  test('SR-015: Search preserves category filter context @regression', async ({
+    catalogPage,
+  }) => {
+    await catalogPage.selectCategory('Sports');
+    await catalogPage.assertProductCount(2);
+
+    // Search for a Sports product
+    await catalogPage.search('Yoga');
+    await catalogPage.assertProductCount(1);
+
+    // Clear search — should return to Sports-filtered view, not all products
+    await catalogPage.clearSearch();
+    await catalogPage.assertProductCount(2);
+  });
 });
